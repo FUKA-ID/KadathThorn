@@ -1,0 +1,8 @@
+Cactus Code Thorn Kadath
+Author(s)    : Cactus interface: Ludwig Jens Papenfort
+Maintainer(s): Cactus team
+Licence      : GPL
+--------------------------------------------------------------------------
+
+Thorn to help link against the Kadath library.
+You need to set KADATH_DIR in your OptionList.
