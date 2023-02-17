@@ -13,7 +13,7 @@ set -e                          # Abort on errors
 
 
 # Set locations
-THORN=KADATH
+THORN=KadathThorn
 NAME=Kadath
 SRCDIR="$(dirname $0)"
 BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
@@ -21,20 +21,20 @@ if [ -z "${KADATH_INSTALL_DIR}" ]; then
     INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
 else
     echo "BEGIN MESSAGE"
-    echo "Installing KADATH into ${KADATH_INSTALL_DIR}"
+    echo "Installing FUKA into ${KADATH_INSTALL_DIR}"
     echo "END MESSAGE"
     INSTALL_DIR=${KADATH_INSTALL_DIR}
 fi
 DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
 KADATH_DIR=${INSTALL_DIR}
 
-echo "KADATH: Preparing directory structure..."
+echo "KadathThorn: Preparing directory structure..."
 cd ${SCRATCH_BUILD}
 mkdir build external done 2> /dev/null || true
 rm -rf ${BUILD_DIR} ${INSTALL_DIR}
 mkdir ${BUILD_DIR} ${INSTALL_DIR}
 
-echo "KADATH: Unpacking archive..."
+echo "KadathThorn: Unpacking archive..."
 pushd ${BUILD_DIR}
 ${TAR?} xf ${SRCDIR}/../dist/${NAME}.tar
 
