@@ -11,8 +11,64 @@ fi
 set -e                          # Abort on errors
 
 ################################################################################
+# Search
+################################################################################
+
+if [ -z "${KADATH_DIR}" ]; then
+    echo "BEGIN MESSAGE"
+    echo "KADATH selected, but KADATH_DIR not set."
+    echo "END MESSAGE"
+else
+    echo "BEGIN MESSAGE"
+    echo "Using KADATH in ${KADATH_DIR}"
+    echo "END MESSAGE"
+fi
+
+THORN=KADATH
+
+################################################################################
+# Build
+################################################################################
+
+if [ -z "${KADATH_DIR}"                                                 \
+     -o "$(echo "${KADATH_DIR}" | tr '[a-z]' '[A-Z]')" = 'BUILD' ]
+then
+    echo "BEGIN MESSAGE"
+    echo "Building KADATH from git repo..."
+    echo "END MESSAGE"
+
+    # Set locations
+    NAME=Kadath
+    SRCDIR="$(dirname $0)"
+    BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
+    if [ -z "${KADATH_INSTALL_DIR}" ]; then
+        INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
+    else
+        echo "BEGIN MESSAGE"
+        echo "Installing KADATH into ${KADATH_INSTALL_DIR}"
+        echo "END MESSAGE"
+        INSTALL_DIR=${KADATH_INSTALL_DIR}
+    fi
+    KADATH_BUILD=1
+    KADATH_DIR=${INSTALL_DIR}
+else
+    KADATH_BUILD=
+    DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
+    if [ ! -e ${DONE_FILE} ]; then
+        mkdir ${SCRATCH_BUILD}/done 2> /dev/null || true
+        date > ${DONE_FILE}
+    fi
+fi
+
+################################################################################
 # Configure Cactus
 ################################################################################
+
+# Pass configuration options to build script
+echo "BEGIN MAKE_DEFINITION"
+echo "KADATH_BUILD          = ${KADATH_BUILD}"
+echo "KADATH_INSTALL_DIR    = ${KADATH_INSTALL_DIR}"
+echo "END MAKE_DEFINITION"
 
 # Set options
 KADATH_INC_DIRS="${KADATH_DIR}/include ${KADATH_DIR}/include/Kadath_point_h"
