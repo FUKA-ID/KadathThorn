@@ -10,8 +10,6 @@ if [ "$(echo ${VERBOSE} | tr '[:upper:]' '[:lower:]')" = 'yes' ]; then
 fi
 set -e                          # Abort on errors
 
-
-
 # Set locations
 THORN=KadathThorn
 NAME=fuka
@@ -66,10 +64,10 @@ export HOME_KADATH=${BUILD_DIR}/${NAME}
 # KADATH is built using cmake
 # Local settings are stored in $HOME_KADATH/Cmake/CMakeLocal.cmake
 # Here we generate our own CMakeLocal.cmake using build variables
-# that should be populated by the user or the ETK build.
+# that should be populated by the user or the ETK builder
 #
 # If this is not robust, this can be commented out and the user set
-# their own CMakeLocal.cmake file
+# their own CMakeLocal.cmake file...or just build FUKA separately
 rm ${HOME_KADATH}/Cmake/CMakeLocal.cmake
 cat > ${HOME_KADATH}/Cmake/CMakeLocal.cmake <<EOF
 set (GSL_LIBRARIES ${GSL_LIBS})
@@ -78,6 +76,10 @@ set (FFTW_LIBRARIES ${FFTW3_LIBS})
 set (BLAS_LIBRARIES ${BLAS_LIBS})
 
 EOF
+
+# Maybe this should only be for verbose/debug?
+echo "KadathThorn: CMAKELIST is"
+cat ${HOME_KADATH}/Cmake/CMakeLocal.cmake
 
 # Move to build directory holding CMakeLists.txt
 cd ${HOME_KADATH}/build_release
@@ -89,12 +91,12 @@ cd build
 cmake -DPAR_VERSION=ON -DCMAKE_BUILD_TYPE=Release ..
 
 echo "KadathThorn: Building Frankfurt University/KADATH library..."
-# Make library $HOME_KADATH/lib/libkadath.a
+# Compile and build library $HOME_KADATH/lib/libkadath.a
 ${MAKE}
 
 echo "KadathThorn: Installing Frankfurt University/KADATH library..."
-mv ${BUILD_DIR}/${NAME}/lib                 ${INSTALL_DIR}
-mv ${BUILD_DIR}/eos                         ${INSTALL_DIR}
+mv ${BUILD_DIR}/${NAME}/lib ${INSTALL_DIR}
+mv ${BUILD_DIR}/eos         ${INSTALL_DIR}
 
 echo "KadathThorn: Set environment variable HOME_KADATH to ${INSTALL_DIR} in job submissions"
 echo "KadathThorn: To use FUKA's built-in equations of state"
