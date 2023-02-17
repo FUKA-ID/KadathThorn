@@ -19,6 +19,13 @@ NAME=fuka
 # SRCDIR = KadathThorn/src
 SRCDIR="$(dirname $0)"
 
+# FIXME need to ask if this is acceptable to ETK Commitee
+# I'd like to avoid having to use a tarball like ExternalLibraries use
+pushd ${SRCDIR}
+git submodule init;
+git submodule update;
+popd
+
 # Setup temporary build and final installation directories
 BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
 if [ -z "${KADATH_INSTALL_DIR}" ]; then
@@ -31,9 +38,11 @@ else
 fi
 DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
 
-# This will always need to be set in the USER's environment
-# or in the simfactory config file
 KADATH_DIR=${INSTALL_DIR}
+if [ -e "${KADATH_DIR}/lib/libkadath.a" ]; then 
+    echo "KadathThorn: FUKA has already been built."
+    echo "KadathThorn: If you want to force rebuilding it, delete ${KADATH_DIR}/lib/libkadath.a"    
+else
 
 # Start from clean build and install directories
 echo "KadathThorn: Preparing directory structure..."
@@ -42,7 +51,7 @@ mkdir build external done 2> /dev/null || true
 rm -rf ${BUILD_DIR} ${INSTALL_DIR}
 mkdir ${BUILD_DIR} ${INSTALL_DIR}
 
-echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR}..."
+echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR} ..."
 # Change to build directory while retaining the current directory under bash `dirs` list
 pushd ${BUILD_DIR}
 # Make a copy of the FUKA repo to the build location
@@ -56,6 +65,11 @@ export HOME_KADATH=${BUILD_DIR}/${NAME}
 
 # KADATH is built using cmake
 # Local settings are stored in $HOME_KADATH/Cmake/CMakeLocal.cmake
+# Here we generate our own CMakeLocal.cmake using build variables
+# that should be populated by the user or the ETK build.
+#
+# If this is not robust, this can be commented out and the user set
+# their own CMakeLocal.cmake file
 rm ${HOME_KADATH}/Cmake/CMakeLocal.cmake
 cat > ${HOME_KADATH}/Cmake/CMakeLocal.cmake <<EOF
 set (GSL_LIBRARIES ${GSL_LIBS})
@@ -63,11 +77,6 @@ set (SCALAPACK_LIBRARIES ${LAPACK_LIBS})
 set (FFTW_LIBRARIES ${FFTW3_LIBS})
 set (BLAS_LIBRARIES ${BLAS_LIBS})
 
-#LIB_CXX = `echo -n ${LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'`
-#LIB_LAPACK = `echo -n ${LAPACK_LIBS} ${BLAS_LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'`
-#LIB_PGPLOT =
-#LIB_GSL = `echo -n ${GSL_LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'` `echo -n ${GSL_LIB_DIRS} | perl -pe 's/(^| )([^-])/\1-L\2/g'`
-#DONTBUILDDEBUGLIB = yes
 EOF
 
 # Move to build directory holding CMakeLists.txt
@@ -84,16 +93,19 @@ echo "KadathThorn: Building Frankfurt University/KADATH library..."
 ${MAKE}
 
 echo "KadathThorn: Installing Frankfurt University/KADATH library..."
-mv ${BUILD_DIR}/${NAME}/lib                ${INSTALL_DIR}
-mv ${INSTALL_DIR}/eos                      ${INSTALL_DIR}
+mv ${BUILD_DIR}/${NAME}/lib                 ${INSTALL_DIR}
+mv ${BUILD_DIR}/eos                         ${INSTALL_DIR}
+
+echo "KadathThorn: Set environment variable HOME_KADATH to ${INSTALL_DIR} in job submissions"
+echo "KadathThorn: To use FUKA's built-in equations of state"
 
 # This could be useful later
 # mv ${BUILD_DIR}/${NAME}/include        ${INSTALL_DIR}/
 
 popd
-
 echo "KadathThorn: Cleaning up..."
 rm -rf ${BUILD_DIR}
+fi
 
 date > ${DONE_FILE}
 echo "KadathThorn: Done."
