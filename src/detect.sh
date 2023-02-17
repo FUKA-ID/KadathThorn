@@ -17,6 +17,14 @@ set -e                          # Abort on errors
 if [ -z "${KADATH_DIR}" ]; then
     echo "BEGIN MESSAGE"
     echo "KADATH selected, but KADATH_DIR not set."
+    
+    # Check for a previously built FUKA library
+    if [ -n "${HOME_KADATH}" ] && [ -e "${HOME_KADATH}/lib/libkadath.a" ]; then
+        echo "Installation of Kadath found at ${HOME_KADATH}"
+        echo "Setting KADATH_DIR = $HOME_KADATH"
+        echo "To force compiling the FUKA library, set KADATH_DIR = BUILD"
+        KADATH_DIR=${HOME_KADATH}
+    fi
     echo "END MESSAGE"
 else
     echo "BEGIN MESSAGE"
