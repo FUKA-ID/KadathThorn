@@ -14,8 +14,12 @@ set -e                          # Abort on errors
 
 # Set locations
 THORN=KadathThorn
-NAME=Kadath
+NAME=fuka
+
+# SRCDIR = KadathThorn/src
 SRCDIR="$(dirname $0)"
+
+# Setup temporary build and final installation directories
 BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
 if [ -z "${KADATH_INSTALL_DIR}" ]; then
     INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
@@ -26,69 +30,70 @@ else
     INSTALL_DIR=${KADATH_INSTALL_DIR}
 fi
 DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
+
+# This will always need to be set in the USER's environment
+# or in the simfactory config file
 KADATH_DIR=${INSTALL_DIR}
 
+# Start from clean build and install directories
 echo "KadathThorn: Preparing directory structure..."
 cd ${SCRATCH_BUILD}
 mkdir build external done 2> /dev/null || true
 rm -rf ${BUILD_DIR} ${INSTALL_DIR}
 mkdir ${BUILD_DIR} ${INSTALL_DIR}
 
-echo "KadathThorn: Unpacking archive..."
+echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR}..."
+# Change to build directory while retaining the current directory under bash `dirs` list
 pushd ${BUILD_DIR}
-${TAR?} xf ${SRCDIR}/../dist/${NAME}.tar
+# Make a copy of the FUKA repo to the build location
+cp -r ${SRCDIR}/${NAME}/ ./
 
-echo "LORENE: Configuring..."
+echo "KadathThorn: Configuring..."
+# Change to directory containing the FUKA repo
 cd ${NAME}
 
-if echo ${F77} | grep -i xlf > /dev/null 2>&1; then
-    FIXEDF77FLAGS=-qfixed
-fi
-export HOME_LORENE=${BUILD_DIR}/${NAME}
-cat > local_settings <<EOF
-CXX = ${CXX}
-CXXFLAGS = ${CXXFLAGS} ${CPPFLAGS} \$(addprefix -I,${SYS_INC_DIRS}) ${LDFLAGS}
-CXXFLAGS_G = ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS}
-INC = -I\$(HOME_LORENE)/C++/Include -I\$(HOME_LORENE)/C++/Include_extra \$(addprefix -I,${GSL_INC_DIRS})
-RANLIB = ${RANLIB}
-# We don't need dependencies since we always build from scratch
-#MAKEDEPEND = ${CXX_DEPEND} \$(INC) \$< ${CXX_DEPEND_OUT} && mv \$@ \$(df).d
-MAKEDEPEND = : > \$(df).d
-DEPDIR = .deps
-FFT_DIR = FFT991
-LIB_CXX = `echo -n ${LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'`
-LIB_LAPACK = `echo -n ${LAPACK_LIBS} ${BLAS_LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'`
-LIB_PGPLOT =
-LIB_GSL = `echo -n ${GSL_LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'` `echo -n ${GSL_LIB_DIRS} | perl -pe 's/(^| )([^-])/\1-L\2/g'`
-DONTBUILDDEBUGLIB = yes
+export HOME_KADATH=${BUILD_DIR}/${NAME}
+
+# KADATH is built using cmake
+# Local settings are stored in $HOME_KADATH/Cmake/CMakeLocal.cmake
+rm ${HOME_KADATH}/Cmake/CMakeLocal.cmake
+cat > ${HOME_KADATH}/Cmake/CMakeLocal.cmake <<EOF
+set (GSL_LIBRARIES ${GSL_LIBS})
+set (SCALAPACK_LIBRARIES ${LAPACK_LIBS})
+set (FFTW_LIBRARIES ${FFTW3_LIBS})
+set (BLAS_LIBRARIES ${BLAS_LIBS})
+
+#LIB_CXX = `echo -n ${LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'`
+#LIB_LAPACK = `echo -n ${LAPACK_LIBS} ${BLAS_LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'`
+#LIB_PGPLOT =
+#LIB_GSL = `echo -n ${GSL_LIBS} | perl -pe 's/(^| )([^-])/\1-l\2/g'` `echo -n ${GSL_LIB_DIRS} | perl -pe 's/(^| )([^-])/\1-L\2/g'`
+#DONTBUILDDEBUGLIB = yes
 EOF
-if [ -n "$XARGS" ]; then echo "XARGS = $XARGS" >> local_settings; fi
-if [ -n "$FIND"  ]; then echo "FIND = $FIND"   >> local_settings; fi
 
-echo "LORENE: Building..."
-${MAKE} cpp fortran export
-# build some utilities available with the Lorene library
-cd Codes/Bin_star
-${MAKE} coal init_bin
-CONFIG_NAME=`echo "$EXE" | sed -e 's/^cactus_//g'`
-UTIL_DIR=${EXEDIR}${DIRSEP}${CONFIG_NAME}
-mkdir ${EXEDIR} 2> /dev/null || true
-mkdir $UTIL_DIR 2> /dev/null || true
-cp coal init_bin $UTIL_DIR
-cd -
+# Move to build directory holding CMakeLists.txt
+cd ${HOME_KADATH}/build_release
+# Make build directory to store build files from CMake and make
+mkdir -p build
+cd build
 
-echo "LORENE: Installing main LORENE library..."
-mv ${BUILD_DIR}/${NAME}/Lib                ${INSTALL_DIR}
-mkdir ${INSTALL_DIR}/C++
-mv ${BUILD_DIR}/${NAME}/C++/Include        ${INSTALL_DIR}/C++
-mkdir ${INSTALL_DIR}/Export
-mkdir ${INSTALL_DIR}/Export/C++
-mv ${BUILD_DIR}/${NAME}/Export/C++/Include ${INSTALL_DIR}/Export/C++
+# Generate Makefile based on CMakeLocal.cmake settings
+cmake -DPAR_VERSION=ON -DCMAKE_BUILD_TYPE=Release ..
+
+echo "KadathThorn: Building Frankfurt University/KADATH library..."
+# Make library $HOME_KADATH/lib/libkadath.a
+${MAKE}
+
+echo "KadathThorn: Installing Frankfurt University/KADATH library..."
+mv ${BUILD_DIR}/${NAME}/lib                ${INSTALL_DIR}
+mv ${INSTALL_DIR}/eos                      ${INSTALL_DIR}
+
+# This could be useful later
+# mv ${BUILD_DIR}/${NAME}/include        ${INSTALL_DIR}/
+
 popd
-echo "LORENE: Installing LORENE utils..."
 
-echo "LORENE: Cleaning up..."
+echo "KadathThorn: Cleaning up..."
 rm -rf ${BUILD_DIR}
 
 date > ${DONE_FILE}
-echo "LORENE: Done."
+echo "KadathThorn: Done."
