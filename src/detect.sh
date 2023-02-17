@@ -24,7 +24,7 @@ else
     echo "END MESSAGE"
 fi
 
-THORN=KADATH
+THORN=KadathThorn
 
 ################################################################################
 # Build
@@ -34,7 +34,7 @@ if [ -z "${KADATH_DIR}"                                                 \
      -o "$(echo "${KADATH_DIR}" | tr '[a-z]' '[A-Z]')" = 'BUILD' ]
 then
     echo "BEGIN MESSAGE"
-    echo "Building KADATH from git repo..."
+    echo "Building Frankfurt University/KADATH from git repo..."
     echo "END MESSAGE"
 
     # Set locations
@@ -45,7 +45,7 @@ then
         INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
     else
         echo "BEGIN MESSAGE"
-        echo "Installing KADATH into ${KADATH_INSTALL_DIR}"
+        echo "Installing Frankfurt University/KADATH into ${KADATH_INSTALL_DIR}"
         echo "END MESSAGE"
         INSTALL_DIR=${KADATH_INSTALL_DIR}
     fi
