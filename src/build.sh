@@ -87,6 +87,11 @@ cd ${HOME_KADATH}/build_release
 mkdir -p build
 cd build
 
+# We only are concerned with importing initial data, not solving initial data
+# Here we remove the do_newton from the list of compiled files to avoid
+# all of its dependencies (SCALAPACK, etc)
+sed -i -e  '/newton/d' ../CMakeLists.txt
+
 # Generate Makefile based on CMakeLocal.cmake settings
 cmake -DPAR_VERSION=ON -DCMAKE_BUILD_TYPE=Release ..
 
@@ -96,7 +101,7 @@ ${MAKE}
 
 echo "KadathThorn: Installing Frankfurt University/KADATH library..."
 mv ${BUILD_DIR}/${NAME}/lib ${INSTALL_DIR}
-mv ${BUILD_DIR}/eos         ${INSTALL_DIR}
+mv ${BUILD_DIR}/${NAME}/eos         ${INSTALL_DIR}
 
 echo "KadathThorn: Set environment variable HOME_KADATH to ${INSTALL_DIR} in job submissions"
 echo "KadathThorn: To use FUKA's built-in equations of state"
