@@ -5,5 +5,8 @@ Licence      : GPL
 --------------------------------------------------------------------------  
 
 Thorn to help link against the Kadath library.  
-The Kadath library needs to be downloaded and compiled separately! See https://kadath.obspm.fr/fuka/ for instructions to do so  
+The Kadath library can be downloaded and compiled separately or built during
+the ETK build procedure! 
+
+See https://kadath.obspm.fr/fuka/ for manual installation instructions to do so  
 Once compiled, you need to set KADATH_DIR in your OptionList (e.g. KADATH_DIR = ${HOME_KADATH})  
