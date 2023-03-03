@@ -10,16 +10,20 @@ if [ "$(echo ${VERBOSE} | tr '[:upper:]' '[:lower:]')" = 'yes' ]; then
 fi
 set -e                          # Abort on errors
 
-# Set locations
-THORN=KadathThorn
-NAME=fuka
-
 # SRCDIR = KadathThorn/src
 SRCDIR="$(dirname $0)"
+echo "KadathThorn - BUILD srcdir: ${SRCDIR}"
+pushd ${SRCDIR}
+
+BASEDIR_ABS=`realpath ../`
+
+# Set locations
+THORN=`basename $BASEDIR_ABS`
+echo "KadathThorn - BUILD thornname: ${THORN}"
+NAME=fuka
 
 # FIXME need to ask if this is acceptable to ETK Commitee
 # I'd like to avoid having to use a tarball like ExternalLibraries use
-pushd ${SRCDIR}
 git submodule init;
 git submodule update;
 popd
