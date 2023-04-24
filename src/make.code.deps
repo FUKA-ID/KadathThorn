@@ -9,5 +9,6 @@ export KADATH_INSTALL_DIR KADATH_LIBS
 $(CCTK_TARGET) $(OBJS) $(SRCS:%=%.d): $(SCRATCH_BUILD)/done/KadathThorn
 
 ifneq ($(KADATH_BUILD),)
-$(SCRATCH_BUILD)/done/KadathThorn: $(SRCDIR)/build.sh
+$(SCRATCH_BUILD)/done/KadathThorn:
+	+$(SRCDIR)/build.sh
 endif
