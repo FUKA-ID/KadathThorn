@@ -15,10 +15,10 @@ SRCDIR="$(dirname $0)"
 echo "KadathThorn - BUILD srcdir: ${SRCDIR}"
 pushd ${SRCDIR}
 
-BASEDIR_ABS=`realpath ../`
-
+BASEDIR_ABS=`cd ../; pwd -P`
+pushd ${BASEDIR_ABS}
 # Set locations
-THORN=`basename $BASEDIR_ABS`
+
 echo "KadathThorn - BUILD thornname: ${THORN}"
 NAME=fuka
 
@@ -57,7 +57,7 @@ echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR} ..."
 # Change to build directory while retaining the current directory under bash `dirs` list
 pushd ${BUILD_DIR}
 # Make a copy of the FUKA repo to the build location
-cp -r ${SRCDIR}/${NAME}/ ./
+cp -R ${SRCDIR}/${NAME} ./
 
 echo "KadathThorn: Configuring..."
 # Change to directory containing the FUKA repo
