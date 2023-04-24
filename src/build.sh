@@ -18,8 +18,8 @@ pushd ${SRCDIR}
 BASEDIR_ABS=`cd ../; pwd -P`
 pushd ${BASEDIR_ABS}
 # Set locations
+THORN=KadathThorn
 
-echo "KadathThorn - BUILD thornname: ${THORN}"
 NAME=fuka
 
 # FIXME need to ask if this is acceptable to ETK Commitee
@@ -33,11 +33,11 @@ BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
 if [ -z "${KADATH_INSTALL_DIR}" ]; then
     INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
 else
-    echo "BEGIN MESSAGE"
     echo "Installing FUKA into ${KADATH_INSTALL_DIR}"
-    echo "END MESSAGE"
     INSTALL_DIR=${KADATH_INSTALL_DIR}
 fi
+echo "KadathThorn: Working in ${INSTALL_DIR}"
+
 DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
 
 KADATH_DIR=${INSTALL_DIR}
@@ -105,7 +105,7 @@ ${MAKE}
 
 echo "KadathThorn: Installing Frankfurt University/KADATH library..."
 mv ${BUILD_DIR}/${NAME}/lib ${INSTALL_DIR}
-mv ${BUILD_DIR}/${NAME}/eos         ${INSTALL_DIR}
+mv ${BUILD_DIR}/${NAME}/eos ${INSTALL_DIR}
 
 echo "KadathThorn: Set environment variable HOME_KADATH to ${INSTALL_DIR} in job submissions"
 echo "KadathThorn: To use FUKA's built-in equations of state"
