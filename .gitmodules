@@ -1,5 +1,1 @@
-[submodule "src/fuka"]
-	path = src/fuka
-	url = https://bitbucket.org/fukaws/fuka.git
-[submodule "fuka"]	
-  branch = fuka
+
