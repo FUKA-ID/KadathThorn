@@ -22,12 +22,6 @@ THORN=KadathThorn
 
 NAME=fuka
 
-# FIXME need to ask if this is acceptable to ETK Commitee
-# I'd like to avoid having to use a tarball like ExternalLibraries use
-git submodule init;
-git submodule update;
-popd
-
 # Setup temporary build and final installation directories
 BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
 if [ -z "${KADATH_INSTALL_DIR}" ]; then
@@ -56,8 +50,9 @@ mkdir ${BUILD_DIR} ${INSTALL_DIR}
 echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR} ..."
 # Change to build directory while retaining the current directory under bash `dirs` list
 pushd ${BUILD_DIR}
+
 # Make a copy of the FUKA repo to the build location
-cp -R ${SRCDIR}/${NAME} ./
+cp -LR ${SRCDIR}/${NAME} ./
 
 echo "KadathThorn: Configuring..."
 # Change to directory containing the FUKA repo
