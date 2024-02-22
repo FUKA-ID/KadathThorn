@@ -89,8 +89,9 @@ echo "END MESSAGE"
 # Pass options to Cactus
 echo "BEGIN MAKE_DEFINITION"
 echo "KADATH_DIR      = ${KADATH_DIR}"
-echo "KADATH_INC_DIRS = ${KADATH_INC_DIRS}"
+echo "KADATH_INC_DIRS = ${KADATH_INC_DIRS} ${FFTW3_INC_DIRS} ${GSL_INC_DIRS} ${LAPACK_INC_DIRS} ${BOOST_INC_DIRS}"
 echo "KADATH_LIB_DIRS = ${KADATH_LIB_DIRS} ${FFTW3_LIB_DIRS} ${GSL_LIB_DIRS} ${LAPACK_LIB_DIRS} ${BOOST_LIB_DIRS}"
+# keep the order like this, since MKL (LAPACK) can contain a (partial) FFTW3 which conflicts
 echo "KADATH_LIBS     = ${KADATH_LIBS} ${FFTW3_LIBS} ${GSL_LIBS} ${LAPACK_LIBS} ${BOOST_LIBS}"
 echo "END MAKE_DEFINITION"
 
