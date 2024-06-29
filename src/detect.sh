@@ -82,16 +82,17 @@ KADATH_LIBS="kadath"
 
 echo "BEGIN MESSAGE"
 echo "KadathThorn: Detect settings - KADATH_DIR : ${KADATH_DIR}"
-echo "KadathThorn: Detect settings - KADATH_LIB_DIRS : ${KADATH_LIB_DIRS}"
-echo "KadathThorn: Detect settings - KADATH_LIBS : ${KADATH_LIBS}"
+echo "KadathThorn: Detect settings - KADATH_INC_DIRS : ${KADATH_INC_DIRS}"
+echo "KadathThorn: Detect settings - KADATH_LIB_DIRS : ${KADATH_LIB_DIRS} ${GSL_LIB_DIRS} ${FFTW3_LIB_DIRS} ${BLAS_LIB_DIRSS} ${LAPACK_LIB_DIRS} ${BOOST_LIB_DIRS}"
+echo "KadathThorn: Detect settings - KADATH_LIBS : ${KADATH_LIBS} ${GSL_LIBS} ${FFTW3_LIBS} ${BLAS_LIBS} ${LAPACK_LIBS} ${BOOST_LIBS}"
 echo "END MESSAGE"
 
 # Pass options to Cactus
 echo "BEGIN MAKE_DEFINITION"
 echo "KADATH_DIR      = ${KADATH_DIR}"
 echo "KADATH_INC_DIRS = ${KADATH_INC_DIRS}"
-echo "KADATH_LIB_DIRS = ${KADATH_LIB_DIRS}"
-echo "KADATH_LIBS     = ${KADATH_LIBS}"
+echo "KADATH_LIB_DIRS = ${KADATH_LIB_DIRS} ${GSL_LIB_DIRS} ${FFTW3_LIB_DIRS} ${BLAS_LIB_DIRSS} ${LAPACK_LIB_DIRS} ${BOOST_LIB_DIRS}"
+echo "KADATH_LIBS     = ${KADATH_LIBS} ${GSL_LIBS} ${FFTW3_LIBS} ${BLAS_LIBS} ${LAPACK_LIBS} ${BOOST_LIBS}"
 echo "END MAKE_DEFINITION"
 
 echo 'INCLUDE_DIRECTORY $(KADATH_INC_DIRS)'
