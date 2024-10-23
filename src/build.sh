@@ -91,6 +91,9 @@ cd build
 # all of its dependencies (SCALAPACK, etc)
 sed -i -e  '/newton/d' ../CMakeLists.txt
 
+# Ensure this macro is defined at build time to enable multi-threaded importers
+sed -i -E 's%// #define DEFAULT_KAD_MEM%#define DEFAULT_KAD_MEM%' ${HOME_KADATH}/include/memory.hpp
+
 # Generate Makefile based on CMakeLocal.cmake settings
 cmake -DPAR_VERSION=ON -DCMAKE_BUILD_TYPE=Release ..
 
