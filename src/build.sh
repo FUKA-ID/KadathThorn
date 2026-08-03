@@ -14,51 +14,18 @@ set -e                          # Abort on errors
 SRCDIR="$(dirname $0)"
 echo "KadathThorn - BUILD srcdir: ${SRCDIR}"
 pushd ${SRCDIR}
+NAME=fuka
+
+echo "KadathThorn: Configuring..."
+# Change to directory containing the FUKA repo
+cd ${NAME}
 
 BASEDIR_ABS=`cd ../; pwd -P`
 pushd ${BASEDIR_ABS}
 # Set locations
 THORN=KadathThorn
 
-NAME=fuka
-
-# Setup temporary build and final installation directories
-BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
-if [ -z "${KADATH_INSTALL_DIR}" ]; then
-    INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
-else
-    echo "Installing FUKA into ${KADATH_INSTALL_DIR}"
-    INSTALL_DIR=${KADATH_INSTALL_DIR}
-fi
-echo "KadathThorn: Working in ${INSTALL_DIR}"
-
-DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
-
-KADATH_DIR=${INSTALL_DIR}
-if [ -e "${KADATH_DIR}/lib/libkadath.a" ]; then 
-    echo "KadathThorn: FUKA has already been built."
-    echo "KadathThorn: If you want to force rebuilding it, delete ${KADATH_DIR}/lib/libkadath.a"    
-else
-
-# Start from clean build and install directories
-echo "KadathThorn: Preparing directory structure..."
-cd ${SCRATCH_BUILD}
-mkdir build external done 2> /dev/null || true
-rm -rf ${BUILD_DIR} ${INSTALL_DIR}
-mkdir ${BUILD_DIR} ${INSTALL_DIR}
-
-echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR} ..."
-# Change to build directory while retaining the current directory under bash `dirs` list
-pushd ${BUILD_DIR}
-
-# Make a copy of the FUKA repo to the build location
-cp -LR ${SRCDIR}/${NAME} ./
-
-echo "KadathThorn: Configuring..."
-# Change to directory containing the FUKA repo
-cd ${NAME}
-
-export HOME_KADATH=${BUILD_DIR}/${NAME}
+export HOME_KADATH=${SRCDIR}/${NAME}
 
 # KADATH is built using cmake
 # Local settings are stored in $HOME_KADATH/Cmake/CMakeLocal.cmake
@@ -82,17 +49,56 @@ cat ${HOME_KADATH}/Cmake/CMakeLocal.cmake
 
 # Move to build directory holding CMakeLists.txt
 cd ${HOME_KADATH}/build_release
-# Make build directory to store build files from CMake and make
-mkdir -p build
-cd build
 
 # We only are concerned with importing initial data, not solving initial data
 # Here we remove the do_newton from the list of compiled files to avoid
 # all of its dependencies (SCALAPACK, etc)
-sed -i -e  '/newton/d' ../CMakeLists.txt
+sed -i -e  '/newton/d' CMakeLists.txt
 
 # Ensure this macro is defined at build time to enable multi-threaded importers
 sed -i -E 's%// #define DEFAULT_KAD_MEM%#define DEFAULT_KAD_MEM%' ${HOME_KADATH}/include/memory.hpp
+
+cd ../../
+
+# Setup temporary build and final installation directories
+BUILD_DIR=${SCRATCH_BUILD}/build/${THORN}
+if [ -z "${KADATH_INSTALL_DIR}" ]; then
+    INSTALL_DIR=${SCRATCH_BUILD}/external/${THORN}
+else
+    echo "Installing FUKA into ${KADATH_INSTALL_DIR}"
+    INSTALL_DIR=${KADATH_INSTALL_DIR}
+fi
+echo "KadathThorn: Working in ${INSTALL_DIR}"
+
+DONE_FILE=${SCRATCH_BUILD}/done/${THORN}
+
+KADATH_DIR=${INSTALL_DIR}
+if [ -e "${KADATH_DIR}/lib/libkadath.a" ]; then
+    echo "KadathThorn: FUKA has already been built."
+    echo "KadathThorn: If you want to force rebuilding it, delete ${KADATH_DIR}/lib/libkadath.a"
+else
+
+# Start from clean build and install directories
+echo "KadathThorn: Preparing directory structure..."
+cd ${SCRATCH_BUILD}
+mkdir build external done 2> /dev/null || true
+rm -rf ${BUILD_DIR} ${INSTALL_DIR}
+mkdir ${BUILD_DIR} ${INSTALL_DIR}
+
+echo "KadathThorn: Copying Frankfurt University/KADATH to ${BUILD_DIR} ..."
+# Change to build directory while retaining the current directory under bash `dirs` list
+pushd ${BUILD_DIR}
+
+# Make a copy of the FUKA repo to the build location
+cp -LR ${SRCDIR}/${NAME} ./
+
+export HOME_KADATH=${BUILD_DIR}/${NAME}
+
+# Move to build directory holding CMakeLists.txt
+cd ${HOME_KADATH}/build_release
+# Make build directory to store build files from CMake and make
+mkdir -p build
+cd build
 
 # Generate Makefile based on CMakeLocal.cmake settings
 cmake -DPAR_VERSION=ON -DCMAKE_BUILD_TYPE=Release ..
@@ -103,7 +109,10 @@ ${MAKE}
 
 echo "KadathThorn: Installing Frankfurt University/KADATH library..."
 mv ${BUILD_DIR}/${NAME}/lib ${INSTALL_DIR}
-mv ${BUILD_DIR}/${NAME}/eos ${INSTALL_DIR}
+cp ${BUILD_DIR}/${NAME}/include/FUKA_Solvers/utilities/fuka_version.hpp \
+    ${SRCDIR}/${NAME}/include/FUKA_Solvers/utilities/fuka_version.hpp
+ln -s ${SRCDIR}/${NAME}/eos ${INSTALL_DIR}/
+ln -s ${SRCDIR}/${NAME}/include ${INSTALL_DIR}/
 
 echo "KadathThorn: Set environment variable HOME_KADATH to ${INSTALL_DIR} in job submissions"
 echo "KadathThorn: To use FUKA's built-in equations of state"
