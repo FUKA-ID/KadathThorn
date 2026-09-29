@@ -42,6 +42,22 @@ set (FFTW_LIBRARIES ${FFTW3_LIBS})
 set (BLAS_LIBRARIES ${BLAS_LIBS})
 
 EOF
+# FUKA's CMake does not search for Boost (or the other libraries) itself: it
+# only sees what is on the compiler's default include path. Forward the
+# include/library directories Cactus already resolved for the thorns this
+# thorn REQUIRES, so a Boost/GSL/FFTW3 living under a non-system prefix
+# (a site "externals" tree, or one built by the ExternalLibraries thorns)
+# is found by the nested CMake build too.
+for dirs in "${BOOST_INC_DIRS}" "${GSL_INC_DIRS}" "${FFTW3_INC_DIRS}" "${LAPACK_INC_DIRS}" "${BLAS_INC_DIRS}"; do
+    if [ -n "${dirs}" ]; then
+        echo "include_directories(${dirs})" >> ${HOME_KADATH}/Cmake/CMakeLocal.cmake
+    fi
+done
+for dirs in "${BOOST_LIB_DIRS}" "${GSL_LIB_DIRS}" "${FFTW3_LIB_DIRS}" "${LAPACK_LIB_DIRS}" "${BLAS_LIB_DIRS}"; do
+    if [ -n "${dirs}" ]; then
+        echo "link_directories(${dirs})" >> ${HOME_KADATH}/Cmake/CMakeLocal.cmake
+    fi
+done
 
 # Maybe this should only be for verbose/debug?
 echo "KadathThorn: CMAKELIST is"
